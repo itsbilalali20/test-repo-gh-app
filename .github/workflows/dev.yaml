@@ -28,11 +28,16 @@ jobs:
       - name: Print github event context (for debugging)
         run: echo "${{ toJson(github.event) }}"
 
-      - name: Show chosen environment
+      - name: Determine Environment
+        id: set-env
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "The selected environment is from workflow_dispatch: ${{ github.event.inputs.ENV }}"
-          elif [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            echo "The selected environment is from repository_dispatch: ${{ github.event.client_payload.ENV }}"
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            echo "ENVIRONMENT=${{ github.event.inputs.ENV }}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_EVENT_NAME}" == "repository_dispatch" ]]; then
+            echo "ENVIRONMENT=${{ github.event.client_payload.ENV }}" >> $GITHUB_ENV
           else
             echo "Unknown trigger"
+            exit 1
+
+      - name: Show chosen environment
+        run: echo "The selected environment is $ENVIRONMENT"
