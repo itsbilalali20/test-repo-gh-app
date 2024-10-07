@@ -38,6 +38,7 @@ jobs:
           else
             echo "Unknown trigger"
             exit 1
+          fi  # Add this fi to close the if-else block
 
       - name: Show chosen environment
         run: echo "The selected environment is $ENVIRONMENT"
