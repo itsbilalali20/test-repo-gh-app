@@ -1,6 +1,18 @@
 name: CI/CD Pipeline
 
 on:
+  workflow_dispatch:
+    inputs:
+      ENV:
+        description: 'Choose environment to deploy code'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+
   repository_dispatch:
     types: [Automation-wf]
 
@@ -15,6 +27,12 @@ jobs:
     steps:
       - name: Print github event context (for debugging)
         run: echo "${{ toJson(github.event) }}"
-        
+
       - name: Show chosen environment
-        run: echo "The selected environment is ${{ github.event.client_payload.ENV }}"
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "The selected environment is from workflow_dispatch: ${{ github.event.inputs.ENV }}"
+          elif [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "The selected environment is from repository_dispatch: ${{ github.event.client_payload.ENV }}"
+          else
+            echo "Unknown trigger"
